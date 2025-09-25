@@ -7,25 +7,25 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Order Up! Cooking Game</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="bg-gray-100">
-	<video id="bg-video" class="bg-video" autoplay muted loop playsinline preload="auto">
-		<source src="assets/Background Vid.mov">
-	</video>
+    <video id="bg-video" class="bg-video" autoplay muted loop playsinline preload="auto">
+        <source src="assets/Background Vid.mov" type="video/quicktime">
+        <source src="assets/Background Vid.mov" type="video/mp4">
+    </video>
 
     <div id="loading-screen" class="fixed top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-gradient-to-br from-blue-500 to-purple-600 z-50">
-        <img src="assets/Loading Screen.jpg" alt="Loading" class="max-w-[80vw] max-h-[60vh] w-auto h-auto object-contain rounded-2xl shadow-2xl">
+        <img src="assets/Loading Screen.jpg" alt="Loading" class="max-w-[80vw] max-h-[60vh] w-auto h-auto object-contain rounded-2xl shadow-2xl animate-pulse">
         <p class="mt-6 text-3xl font-bold text-white drop-shadow-lg">Loading...</p>
     </div>
 
     <div id="intro-screen" class="hidden intro-screen-animate">
         <div class="intro-card">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Choose Your Chef</h2>
-            <p class="text-gray-600 mb-6">Select your chef character.</p>
+            <p class="text-gray-600 mb-6">Select your chef character!</p>
             <div class="chef-selection-container">
                 <div class="chef-selection-option" data-chef="male">
                     <div class="chef-preview">
@@ -53,7 +53,7 @@
     
     <div id="chef-selection-screen" class="hidden intro-screen-animate">
         <div class="intro-card">
-            <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Welcome Chef!</h2>
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Welcome, Chef!</h2>
             <p class="text-gray-600 mb-6">Enter your name to begin.</p>
             <input type="text" id="chef-name-input" placeholder="Your Name" class="p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
             <div class="mt-6 flex justify-center">
@@ -67,25 +67,25 @@
     <div id="background-selection-screen" class="hidden intro-screen-animate">
         <div class="intro-card">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Choose Your Background</h2>
-            <p class="text-gray-600 mb-6">Select a background for your cooking adventure.</p>
+            <p class="text-gray-600 mb-6">Select a background for your cooking adventure!</p>
             <div class="bg-selection-container">
                 <div class="bg-selection-option" data-bg="1">
                     <div class="bg-preview bg-preview-1">
                         <img src="assets/Kitchen 1.png" alt="Background 1" class="preview-img">
                     </div>
-                    <p>Morning</p>
+                    <p>Background 1</p>
                 </div>
                 <div class="bg-selection-option" data-bg="2">
                     <div class="bg-preview bg-preview-2">
                         <img src="assets/Kitchen 2.png" alt="Background 2" class="preview-img">
                     </div>
-                    <p>Evening</p>
+                    <p>Background 2</p>
                 </div>
                 <div class="bg-selection-option" data-bg="3">
                     <div class="bg-preview bg-preview-3">
                         <img src="assets/Kitchen 3.jpeg" alt="Background 3" class="preview-img">
                     </div>
-                    <p>Night</p>
+                    <p>Background 3</p>
                 </div>
             </div>
             <div class="mt-6 flex justify-center">
@@ -106,18 +106,17 @@
             <div class="space-y-4">
                 <div>
                     <h4 class="text-lg font-semibold text-blue-600 mb-2">🎯 Game Objective</h4>
-                    <p class="text-gray-700">You have <strong>2 minutes</strong> to serve as many customers as possible. Earn points for correct orders and try to beat your high score before time runs out.</p>
+                    <p class="text-gray-700">Serve customers the correct food items by selecting the right ingredients. Earn points for correct orders and lose points for mistakes!</p>
                 </div>
 
                 <div>
                     <h4 class="text-lg font-semibold text-green-600 mb-2">🎮 How to Play</h4>
                     <ul class="text-gray-700 space-y-1 ml-4">
-                        <li>• <strong>Game Timer:</strong> You have 2 minutes total.</li>
-                        <li>• <strong>Customer Timer:</strong> Each customer will wait for 10 seconds.</li>
-                        <li>• Select the required ingredients according to the order.</li>
+                        <li>• Each customer has <strong>15 seconds</strong>. Watch the timer next to the order.</li>
+                        <li>• Select the required ingredients (with small icons) from the buttons below.</li>
                         <li>• Click "Serve" to submit. Correct serve: <strong>+10</strong> points.</li>
-                        <li>• Click "Reset" to choose the ingredients again.</li>
-                        <li>• If time runs out: <strong>-10</strong> points and <strong>new customer</strong> appears.</li>
+                        <li>• If time runs out: <strong>-5</strong> points and a <strong>new customer and dish</strong> appear.</li>
+                        <li>• After <strong>3 timeouts</strong>, game ends with a popup. Click Play Again to restart.</li>
                         <li>• Click the lightbulb to toggle a hint showing the needed ingredients.</li>
                     </ul>
                 </div>
@@ -126,8 +125,8 @@
                     <h4 class="text-lg font-semibold text-purple-600 mb-2">🍽️ Available Recipes</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Icecream</h5>
-                            <p class="text-sm text-gray-600">Icecream</p>
+                            <h5 class="font-semibold text-gray-800">Chocolate Milkshake</h5>
+                            <p class="text-sm text-gray-600">Chocolate Icecream + Milk + Sugar</p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded">
                             <h5 class="font-semibold text-gray-800">Milk</h5>
@@ -165,48 +164,35 @@
                             <h5 class="font-semibold text-gray-800">Chicken Wings</h5>
                             <p class="text-sm text-gray-600">Chicken + Flour + Oil</p>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Biryani</h5>
-                            <p class="text-sm text-gray-600">Rice + Chicken + Spices + Yogurt</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Lassi</h5>
-                            <p class="text-sm text-gray-600">Yogurt + Sugar + Milk</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Butter Paneer</h5>
-                            <p class="text-sm text-gray-600">Paneer + Tomato + Spices + Ghee</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Aloo Paratha</h5>
-                            <p class="text-sm text-gray-600">Flour + Potato + Ghee + Spices + Salt</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Idli</h5>
-                            <p class="text-sm text-gray-600">Rice + Flour + Yogurt + Salt</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <h5 class="font-semibold text-gray-800">Samosa</h5>
-                            <p class="text-sm text-gray-600">Flour + Potato + Oil + Spices + Salt</p>
-                        </div>
                     </div>
                 </div>
-                
-                <p class="text-orange-500 mt-6 text-center font-medium">Have fun cooking!</p>
+
+                <div>
+                    <h4 class="text-lg font-semibold text-orange-600 mb-2">💡 Tips</h4>
+                    <ul class="text-gray-700 space-y-1 ml-4">
+                        <li>• Pay attention to the order details</li>
+                        <li>• Use the Reset button if you make a mistake</li>
+                        <li>• Try to remember the recipes for faster gameplay</li>
+                        <li>• Have fun cooking!</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="game-over-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 text-center">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Game Over</h3>
+            <p class="text-gray-700 mb-6">You missed 3 orders. Better luck next time!</p>
+            <button id="restart-btn" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition">Play Again</button>
+        </div>
+    </div>
 
     <div class="game-container hidden">
-        <div class="game-timer-container">
-            <div id="game-timer" class="game-timer">2:00</div>
-        </div>
-        
         <h1 class="text-2xl font-extrabold text-gray-800 mb-2">Order Up! 👨‍🍳</h1>
         
         <div class="score-display mb-2">
-            Your Score: <span id="score">0</span>
+            Score: <span id="score">0</span>
         </div>
 
         <div class="customer-area mb-3">

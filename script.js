@@ -11,11 +11,11 @@ let recipeQueue = [];
 let lastRecipeName = '';
 let timerInterval = null;
 let timeLeft = 15;
-let gameTimerInterval = null;
-let gameTimeLeft = 120; 
-let selectedBackground = null;
-let selectedChef = null;
-const ORDER_TIME_LIMIT = 10;
+let strikes = 0;
+let selectedBackground = 1;
+let selectedChef = 'female';
+const MAX_STRIKES = 3;
+const ORDER_TIME_LIMIT = 15;
 const BACKGROUND_VIDEOS = {
     1: 'assets/Background Vid.mov',
     2: 'assets/Background Vid 3.mp4',
@@ -30,7 +30,6 @@ const gameContainer = document.querySelector('.game-container');
 const scoreDisplay = document.getElementById('score');
 const customerOrderDisplay = document.getElementById('customer-order');
 const timerDisplay = document.getElementById('timer');
-const gameTimerDisplay = document.getElementById('game-timer');
 const customerImageDisplay = document.getElementById('customer-image');
 const statusMessageDisplay = document.getElementById('status-message');
 const ingredientButtonsContainer = document.getElementById('ingredient-buttons-container');
@@ -49,34 +48,31 @@ const closeInstructions = document.getElementById('close-instructions');
 const hintBtn = document.getElementById('hint-btn');
 const hintContent = document.getElementById('hint-content');
 const hintIngredients = document.getElementById('hint-ingredients');
+const gameOverModal = document.getElementById('game-over-modal');
 const bgVideo = document.getElementById('bg-video');
+const restartBtn = document.getElementById('restart-btn');
 const bgSelectionOptions = document.querySelectorAll('.bg-selection-option');
 const chefSelectionOptions = document.querySelectorAll('.chef-selection-option');
 
 const ingredientIcons = {
-    'icecream': '🍦',
+    'chocolate icecream': '🍦',
     'milk': '🥛',
     'sugar': '🍬',
     'water': '💧',
-    'bread': '🍞',
     'lemon': '🍋',
+    'bread': '🍞',
     'patty': '🥩',
-    'potato': '🥔',
     'cheese': '🧀',
+    'potato': '🥔',
     'flour': '🌾',
     'oil': '🧴',
-    'dough': '🥖',
+    'dough': '🍞',
     'tomato': '🍅',
     'pepperoni': '🍕',
     'salt': '🧂',
     'chicken': '🍗',
     'chocos fills': '🍫',
-    'coffee powder': '☕',
-    'rice': '🍚',
-    'spices': '🌶️',
-    'paneer': '⬜',
-    'yogurt': '🥣',
-    'ghee': '🟨'
+    'coffee powder': '☕'
 };
 
 function getIngredientIcon(name) {
@@ -84,7 +80,7 @@ function getIngredientIcon(name) {
 }
 async function loadGameData() {
     recipes = {
-        'Icecream': ['icecream'],
+        'Chocolate Milkshake': ['chocolate icecream', 'milk', 'sugar'],
         'Milk': ['milk', 'sugar'],
         'Lemonade': ['water', 'sugar', 'lemon'],
         'Coffee': ['coffee powder', 'milk', 'sugar'],
@@ -93,13 +89,7 @@ async function loadGameData() {
         'Pizza': ['dough', 'cheese', 'tomato', 'pepperoni'],
         'French Fries': ['potato', 'oil', 'salt'],
         'Chocos': ['chocos fills', 'sugar', 'milk'],
-        'Chicken Wings': ['chicken', 'flour', 'oil'],
-        'Biryani': ['rice', 'chicken', 'spices', 'yogurt'],
-        'Lassi': ['yogurt', 'sugar', 'milk'],
-        'Butter Paneer': ['paneer', 'tomato', 'spices', 'ghee'],
-        'Aloo Paratha': ['flour', 'potato', 'ghee', 'spices', 'salt'],
-        'Idli': ['rice', 'flour', 'yogurt', 'salt'],
-        'Samosa': ['flour', 'potato', 'oil', 'spices', 'salt']
+        'Chicken Wings': ['chicken', 'flour', 'oil']
     };
 
     customers = [
@@ -107,16 +97,12 @@ async function loadGameData() {
         { name: 'Customer 2', image: 'assets/Customer 2.png' },
         { name: 'Customer 3', image: 'assets/Customer 3.png' },
         { name: 'Customer 4', image: 'assets/Customer 4.png' },
-        { name: 'Customer 5', image: 'assets/Customer 5.png' },
-        { name: 'Customer 6', image: 'assets/Customer 6.png' }
+        { name: 'Customer 5', image: 'assets/Customer 5.png' }
     ];
 
-    ingredients = [
-        'icecream', 'milk', 'sugar', 'water', 'bread', 'lemon', 'patty', 
-        'potato', 'cheese', 'flour', 'oil', 'dough', 'tomato', 'pepperoni', 
-        'salt', 'chicken', 'chocos fills', 'coffee powder', 'rice', 
-        'spices', 'paneer', 'yogurt', 'ghee'
-    ];
+    const uniq = new Set();
+    Object.values(recipes).forEach(arr => arr.forEach(i => uniq.add(i)));
+    ingredients = Array.from(uniq);
 
     recipeNameList = Object.keys(recipes);
     rebuildCustomerQueue();
@@ -125,12 +111,6 @@ async function loadGameData() {
 }
 
 function showNameInput() {
-    // Check if a chef is selected
-    if (!selectedChef || selectedChef === null) {
-        alert('Choose your Chef first.');
-        return;
-    }
-    
     introScreen.classList.add('fade-out');
     setTimeout(() => {
         introScreen.classList.add('hidden');
@@ -165,7 +145,7 @@ function showBackgroundSelection() {
             backgroundSelectionScreen.classList.remove('hidden');
         }, 180);
     } else {
-        alert("Enter a name to continue.");
+        alert("Please enter a name to continue.");
     }
 }
 
@@ -179,7 +159,25 @@ function selectBackground(bgNumber) {
         }
     });
     
+    // Force video reload with proper error handling
+    bgVideo.pause();
     bgVideo.src = BACKGROUND_VIDEOS[bgNumber];
+    bgVideo.load();
+    
+    // Add error handling for video loading
+    bgVideo.onerror = function() {
+        console.error('Error loading video:', BACKGROUND_VIDEOS[bgNumber]);
+        // Fallback to a default background if video fails
+        bgVideo.style.display = 'none';
+        document.body.style.backgroundImage = `url('assets/Kitchen ${bgNumber}.${bgNumber === 3 ? 'jpeg' : 'png'}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    };
+    
+    bgVideo.onloadeddata = function() {
+        bgVideo.style.display = 'block';
+        bgVideo.play().catch(e => console.error('Error playing video:', e));
+    };
     
     bgVideo.style.opacity = '0.8';
     bgVideo.style.filter = 'brightness(0.8)';
@@ -189,12 +187,6 @@ function selectBackground(bgNumber) {
 }
 
 function startGame() {
-    // Check if a background is selected
-    if (!selectedBackground || selectedBackground === null) {
-        alert('Select a background to start.');
-        return;
-    }
-    
     backgroundSelectionScreen.classList.add('fade-out');
     
     bgVideo.style.opacity = '1';
@@ -205,8 +197,8 @@ function startGame() {
         backgroundSelectionScreen.classList.add('hidden');
         gameContainer.classList.remove('hidden');
         chefInfo.classList.remove('hidden');
+        strikes = 0;
         gameContainer.classList.remove('disabled-overlay');
-        startGameTimer(); // Start the 2-minute game timer
         newOrder();
     }, 180);
 }
@@ -254,7 +246,7 @@ function rebuildCustomerQueue() {
     customerQueue = Array.from({ length: customers.length }, (_, i) => i);
     shuffleArray(customerQueue);
     if (customerQueue.length > 1 && customerQueue[0] === lastCustomerIndex) {
-        
+        // Swap first with a different element to avoid consecutive repeat
         [customerQueue[0], customerQueue[1]] = [customerQueue[1], customerQueue[0]];
     }
 }
@@ -275,8 +267,8 @@ function newOrder() {
     if (!customers || customers.length === 0) {
         return;
     }
-    if (gameTimeLeft <= 0) {
-        endGameByTime();
+    if (strikes >= MAX_STRIKES) {
+        endGame();
         return;
     }
     stopTimer();
@@ -307,7 +299,7 @@ function newOrder() {
     customerImageDisplay.classList.remove('fade-in');
     void customerImageDisplay.offsetWidth;
     customerImageDisplay.classList.add('fade-in');
-    statusMessageDisplay.textContent = 'Choose your ingredients and serve';
+    statusMessageDisplay.textContent = 'Choose your ingredients and serve!';
     
     hintContent.classList.add('hidden');
 
@@ -322,7 +314,10 @@ function serveOrder() {
     if (sortedSelected.length === sortedOrder.length && 
         sortedSelected.every((value, index) => value === sortedOrder[index])) {
         
-        statusMessageDisplay.textContent = "Correct! Order served successfully";
+        statusMessageDisplay.textContent = "Correct! Order served successfully!";
+        statusMessageDisplay.classList.remove('fade-in');
+        void statusMessageDisplay.offsetWidth;
+        statusMessageDisplay.classList.add('fade-in');
         
         showScoreChange(10, true);
         
@@ -334,7 +329,10 @@ function serveOrder() {
             newOrder();
         }, 1000);
     } else {
-        statusMessageDisplay.textContent = "Incorrect recipe! Try again";
+        statusMessageDisplay.textContent = "Incorrect recipe. Try again!";
+        statusMessageDisplay.classList.remove('fade-in');
+        void statusMessageDisplay.offsetWidth;
+        statusMessageDisplay.classList.add('fade-in');
         
         showScoreChange(-5, false);
         
@@ -353,24 +351,19 @@ function resetGame() {
 }
 
 function showScoreChange(amount, isPositive) {
-    const scoreText = document.createElement('div');
-    scoreText.textContent = isPositive ? '+' + amount : amount;
-    scoreText.style.position = 'absolute';
-    scoreText.style.color = isPositive ? 'green' : 'red';
-    scoreText.style.fontWeight = 'bold';
-    scoreText.style.fontSize = '20px';
-    scoreText.style.zIndex = '100';
+    const scoreChangeElement = document.createElement('div');
+    scoreChangeElement.className = `score-change ${isPositive ? 'score-positive' : 'score-negative'}`;
+    scoreChangeElement.textContent = `${isPositive ? '+' : ''}${amount}`;
     
-    // Position it next to the score display
-    const scoreRect = scoreDisplay.getBoundingClientRect();
-    scoreText.style.left = (scoreRect.right + 10) + 'px';
-    scoreText.style.top = scoreRect.top + 'px';
+    const rect = scoreDisplay.getBoundingClientRect();
+    scoreChangeElement.style.left = `${rect.left + rect.width / 2}px`;
+    scoreChangeElement.style.top = `${rect.top}px`;
     
-    document.body.appendChild(scoreText);
+    document.body.appendChild(scoreChangeElement);
     
-    setTimeout(function() {
-        document.body.removeChild(scoreText);
-    }, 1500);
+    setTimeout(() => {
+        document.body.removeChild(scoreChangeElement);
+    }, 1000);
 }
 
 function showHint() {
@@ -406,33 +399,6 @@ function showHint() {
     hintContent.classList.add('fade-in');
 }
 
-function startGameTimer() {
-    gameTimeLeft = 120; // Reset to 2 minutes
-    updateGameTimerDisplay();
-    gameTimerInterval = setInterval(() => {
-        gameTimeLeft -= 1;
-        updateGameTimerDisplay();
-        if (gameTimeLeft <= 0) {
-            stopGameTimer();
-            endGameByTime();
-        }
-    }, 1000);
-}
-
-function stopGameTimer() {
-    if (gameTimerInterval) {
-        clearInterval(gameTimerInterval);
-        gameTimerInterval = null;
-    }
-}
-
-function updateGameTimerDisplay() {
-    const minutes = Math.floor(gameTimeLeft / 60);
-    const seconds = gameTimeLeft % 60;
-    const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    gameTimerDisplay.textContent = formattedTime;
-}
-
 function startTimer() {
     timeLeft = ORDER_TIME_LIMIT;
     timerDisplay.textContent = `${timeLeft}s`;
@@ -458,28 +424,49 @@ function stopTimer() {
 }
 
 function handleTimeout() {
-    showScoreChange(-10, false);
+    showScoreChange(-5, false);
     
-    score = Math.max(0, score - 10);
+    score = Math.max(0, score - 5);
+    strikes += 1;
     scoreDisplay.textContent = score;
+    statusMessageDisplay.textContent = "Time's up! -5 points";
+    if (strikes >= MAX_STRIKES) {
+        endGame();
+        return;
+    }
     setTimeout(() => {
         resetGame();
         newOrder();
     }, 800);
 }
 
-function endGameByTime() {
+function endGame() {
+    statusMessageDisplay.textContent = 'Game over! You ran out of time.';
     stopTimer();
-    stopGameTimer();
-    statusMessageDisplay.textContent = 'Game Over!';
-    statusMessageDisplay.style.color = 'red';
-    statusMessageDisplay.style.fontWeight = 'bold';
     gameContainer.classList.add('disabled-overlay');
+    gameOverModal.classList.remove('hidden');
 }
 
-
+function restartGame() {
+    score = 0;
+    strikes = 0;
+    scoreDisplay.textContent = score;
+    selectedIngredients = [];
+    lastCustomerIndex = -1;
+    lastRecipeName = '';
+    customerQueue = [];
+    recipeQueue = [];
+    gameContainer.classList.remove('disabled-overlay');
+    gameOverModal.classList.add('hidden');
+    resetGame();
+    rebuildCustomerQueue();
+    rebuildRecipeQueue();
+    newOrder();
+}
 
 startButton.addEventListener('click', showNameInput);
+startButton.addEventListener('mousedown', () => startButton.classList.add('btn-press'));
+startButton.addEventListener('mouseup', () => startButton.classList.remove('btn-press'));
 
 // Chef selection event listeners
 chefSelectionOptions.forEach(option => {
@@ -487,6 +474,8 @@ chefSelectionOptions.forEach(option => {
 });
 
 continueToBackgroundBtn.addEventListener('click', showBackgroundSelection);
+continueToBackgroundBtn.addEventListener('mousedown', () => continueToBackgroundBtn.classList.add('btn-press'));
+continueToBackgroundBtn.addEventListener('mouseup', () => continueToBackgroundBtn.classList.remove('btn-press'));
 
 // Background selection event listeners
 bgSelectionOptions.forEach(option => {
@@ -494,24 +483,37 @@ bgSelectionOptions.forEach(option => {
 });
 
 startGameButton.addEventListener('click', startGame);
+startGameButton.addEventListener('mousedown', () => startGameButton.classList.add('btn-press'));
+startGameButton.addEventListener('mouseup', () => startGameButton.classList.remove('btn-press'));
 chefNameInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         showBackgroundSelection();
     }
 });
 serveButton.addEventListener('click', serveOrder);
+serveButton.addEventListener('mousedown', () => serveButton.classList.add('btn-press'));
+serveButton.addEventListener('mouseup', () => serveButton.classList.remove('btn-press'));
 resetButton.addEventListener('click', () => {
     resetGame();
     statusMessageDisplay.textContent = 'Ingredients reset. Try again.';
+    statusMessageDisplay.classList.remove('fade-in');
+    void statusMessageDisplay.offsetWidth;
+    statusMessageDisplay.classList.add('fade-in');
 });
+resetButton.addEventListener('mousedown', () => resetButton.classList.add('btn-press'));
+resetButton.addEventListener('mouseup', () => resetButton.classList.remove('btn-press'));
 
 instructionsBtn.addEventListener('click', () => {
     instructionsModal.classList.remove('hidden');
 });
+instructionsBtn.addEventListener('mousedown', () => instructionsBtn.classList.add('btn-press'));
+instructionsBtn.addEventListener('mouseup', () => instructionsBtn.classList.remove('btn-press'));
 
 closeInstructions.addEventListener('click', () => {
     instructionsModal.classList.add('hidden');
 });
+closeInstructions.addEventListener('mousedown', () => closeInstructions.classList.add('btn-press'));
+closeInstructions.addEventListener('mouseup', () => closeInstructions.classList.remove('btn-press'));
 
 instructionsModal.addEventListener('click', (e) => {
     if (e.target === instructionsModal) {
@@ -521,6 +523,11 @@ instructionsModal.addEventListener('click', (e) => {
 
 // Hint button event listener
 hintBtn.addEventListener('click', showHint);
+hintBtn.addEventListener('mousedown', () => hintBtn.classList.add('btn-press'));
+hintBtn.addEventListener('mouseup', () => hintBtn.classList.remove('btn-press'));
+restartBtn.addEventListener('mousedown', () => restartBtn.classList.add('btn-press'));
+restartBtn.addEventListener('mouseup', () => restartBtn.classList.remove('btn-press'));
+restartBtn.addEventListener('click', restartGame);
 
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
@@ -528,5 +535,5 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => loadingScreen.classList.add('hidden'), 160);
         introScreen.classList.remove('hidden');
         loadGameData();
-    }, 2000);
+    }, 3000);
 });

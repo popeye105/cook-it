@@ -1,16 +1,16 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f3f4f6;
-    min-height: 100vh;
+    height: 100vh;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
+    padding: 0.5rem;
     text-align: center;
     margin: 0;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 /* Background video fills viewport and sits behind content */
 .bg-video {
@@ -40,9 +40,13 @@ body {
     border: 3px solid transparent;
     border-radius: 10px;
     padding: 10px;
-    /* transition: all 0.3s ease; */
+    transition: all 0.3s ease;
 }
 
+.bg-selection-option:hover,
+.chef-selection-option:hover {
+    transform: translateY(-5px);
+}
 
 .bg-selection-option.selected,
 .chef-selection-option.selected {
@@ -78,35 +82,54 @@ body {
     display: block;
 }
 
-/* Fix male chef image rendering issues */
-.chef-selection-option[data-chef="male"] img,
-#cook-model[src*="Chef 2.jpg"] {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+/* Kitchen preview images now use actual different images instead of filters */
+
+.bg-preview::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 0;
+    text-align: center;
+    z-index: 1;
 }
 
+.bg-preview-1::after {
+    content: "Kitchen 1";
+}
+
+.bg-preview-2::after {
+    content: "Kitchen 2";
+}
+
+.bg-preview-3::after {
+    content: "Kitchen 3";
+}
 .game-container {
     max-width: 800px;
-    width: 90%;
-    height: auto;
-    max-height: 85vh;
-    overflow-y: auto;
+    width: 95%;
+    height: calc(100vh - 1rem);
+    max-height: calc(100vh - 1rem);
+    overflow: hidden;
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 1.5rem;
+    border-radius: 1rem;
     box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
+    padding: 1rem;
+    z-index: 20;
     position: relative;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 .customer-area {
     background: transparent;
     border-radius: 1rem;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -135,10 +158,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    position: absolute;
-    top: 150px;
-    right: 130px;
-    z-index: 10;
+    position: relative;
 }
 
 .hint-button {
@@ -152,13 +172,13 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    /* transition: all 0.2s ease; */
+    transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .hint-button:hover {
     background-color: #f59e0b;
-    /* No transform animation */
+    transform: scale(1.1);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -225,73 +245,65 @@ body {
     padding: 0.25rem 0.5rem;
     font-weight: 700;
     font-size: 0.9rem;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
 }
 
 .disabled-overlay {
     pointer-events: none;
-    /* opacity: 0.6; - Removed to keep game container fully opaque */
+    opacity: 0.6;
 }
 .customer-image {
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
     background-color: transparent;
-    margin-bottom: 0.4rem;
-    border-radius: 12px;
+    margin-bottom: 0.3rem;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .ingredient-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.4rem;
-    max-height: 180px;
-    overflow-y: auto;
-    padding: 0.5rem;
+    gap: 0.3rem;
+    padding: 0.4rem;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     flex: 1;
+    overflow-y: auto;
+    max-height: 40vh;
 }
 .ingredient-btn {
     background-color: #4f46e5;
     color: white;
-    padding: 0.2rem 0.4rem;
+    padding: 0.3rem 0.6rem;
     border-radius: 0.4rem;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
-    /* transition: all 0.3s ease; */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     transform: translateY(0);
-    font-size: 0.75rem;
-    min-width: 55px;
-    margin: 0.08rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    gap: 0.2rem;
+    font-size: 0.7rem;
+    min-width: 60px;
 }
 .ingredient-btn:hover {
     background-color: #4338ca;
-    /* No shadow or transform animation */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 .ingredient-btn.active {
     background-color: #10b981;
-    /* No shadow or transform animation */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
     pointer-events: none;
     opacity: 0.95;
 }
 
 /* Smooth press transitions for all buttons */
 button, .ingredient-btn, .hint-button {
-    /* transition: transform 120ms ease, box-shadow 150ms ease, background-color 200ms ease; */
+    transition: transform 120ms ease, box-shadow 150ms ease, background-color 200ms ease;
     /* Touch-friendly sizing */
     min-height: 44px;
     touch-action: manipulation;
@@ -309,11 +321,35 @@ button, .ingredient-btn, .hint-button {
 /* Smooth animation helpers */
 .fade-in { animation: fadeIn 200ms ease both; }
 .fade-out { animation: fadeOut 150ms ease both; }
+.btn-press { transform: scale(0.97) !important; }
 
+/* Score change animation */
+.score-change {
+    position: absolute;
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation: scoreChange 1s ease-out forwards;
+    z-index: 100;
+}
+
+.score-positive {
+    color: #10b981; /* Green color */
+}
+
+.score-negative {
+    color: #ef4444; /* Red color */
+}
+
+@keyframes scoreChange {
+    0% { opacity: 0; transform: translateY(0); }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeOut {
@@ -321,15 +357,23 @@ button, .ingredient-btn, .hint-button {
     to { opacity: 0; transform: translateY(-4px); }
 }
 
-/* Modal pop animation - removed for instructions */
-/* Game over modal - no animation */
+/* Modal pop animation */
+#instructions-modal > div,
+#game-over-modal > div {
+    animation: modalPop 220ms ease both;
+}
 
 @keyframes modalPop {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Hint popover - no animation */
+/* Hint popover subtle drop */
+.hint-content { animation: hintDrop 180ms ease both; }
+@keyframes hintDrop {
+    from { opacity: 0; transform: translate(-50%, -6px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
 .status-message {
     font-size: 1.25rem;
     font-weight: bold;
@@ -418,6 +462,9 @@ button, .ingredient-btn, .hint-button {
     display: none !important;
 }
 
+#game-over-modal.hidden {
+    display: none !important;
+}
 
 /* Loading screen responsive design */
 #loading-screen {
@@ -443,37 +490,21 @@ button, .ingredient-btn, .hint-button {
     font-weight: bold;
 }
 
-/* Mobile detection and restriction */
+/* Tablet and smaller desktop screens */
 @media (max-width: 1024px) {
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.9);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .game-container {
+        width: 95%;
+        padding: 1.5rem;
     }
     
-    body::after {
-        content: 'Cook it: Playable on PC only';
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
-        text-align: center;
-        z-index: 10000;
-        background-color: rgba(255, 0, 0, 0.8);
-        padding: 2rem;
-        border-radius: 1rem;
-        border: 2px solid white;
+    .chef-info {
+        bottom: 1.5rem;
+        left: 1.5rem;
+    }
+    
+    .chef-info img {
+        width: 120px;
+        height: 120px;
     }
 }
 
@@ -535,7 +566,6 @@ button, .ingredient-btn, .hint-button {
         gap: 15px;
         padding: 15px;
         text-align: left;
-        max-height: 120px;
     }
     
     .bg-preview,
@@ -630,6 +660,10 @@ button, .ingredient-btn, .hint-button {
         width: calc(100% - 2rem);
     }
     
+    #game-over-modal .bg-white {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
     
     .grid.grid-cols-1.md\:grid-cols-2 {
         grid-template-columns: 1fr;
@@ -773,57 +807,6 @@ button, .ingredient-btn, .hint-button {
     }
     
     .ingredient-buttons {
-        max-height: 120px;
-    }
-}
-
-/* Game Timer Styles */
-.game-timer-container {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-    z-index: 1000;
-}
-
-.game-timer {
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid #ffffff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    min-width: 80px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-}
-
-.game-timer.warning {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
-}
-
-
-/* Mobile responsive adjustments for game timer */
-@media (max-width: 768px) {
-    .game-timer-container {
-        top: 10px;
-        right: 10px;
-    }
-    
-    .game-timer {
-        font-size: 1.2rem;
-        padding: 8px 15px;
-        min-width: 70px;
-    }
-}
-
-@media (max-width: 480px) {
-    .game-timer {
-        font-size: 1rem;
-        padding: 6px 12px;
-        min-width: 60px;
+        padding: 0.25rem;
     }
 }
