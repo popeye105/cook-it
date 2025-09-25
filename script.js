@@ -107,7 +107,8 @@ async function loadGameData() {
         { name: 'Customer 2', image: 'assets/Customer 2.png' },
         { name: 'Customer 3', image: 'assets/Customer 3.png' },
         { name: 'Customer 4', image: 'assets/Customer 4.png' },
-        { name: 'Customer 5', image: 'assets/Customer 5.png' }
+        { name: 'Customer 5', image: 'assets/Customer 5.png' },
+        { name: 'Customer 6', image: 'assets/Customer 6.png' }
     ];
 
     ingredients = [
