@@ -334,7 +334,7 @@ function serveOrder() {
             newOrder();
         }, 1000);
     } else {
-        statusMessageDisplay.textContent = "Incorrect recipe! Try again";
+        statusMessageDisplay.textContent = "Incorrect recipe. Try again";
         
         showScoreChange(-5, false);
         
@@ -502,7 +502,7 @@ chefNameInput.addEventListener('keypress', function(event) {
 serveButton.addEventListener('click', serveOrder);
 resetButton.addEventListener('click', () => {
     resetGame();
-    statusMessageDisplay.textContent = 'Ingredients reset. Try again.';
+    statusMessageDisplay.textContent = 'Ingredients reset. Try again';
 });
 
 instructionsBtn.addEventListener('click', () => {
